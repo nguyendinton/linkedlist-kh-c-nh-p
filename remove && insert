@@ -1,0 +1,123 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <malloc.h>
+
+typedef struct Node {
+    int data;
+    struct Node* next;
+} Node;
+
+typedef struct {
+    Node* first;
+    Node* last;
+} LinkedList;
+
+LinkedList* createLinkedList() {
+    LinkedList* list = (LinkedList*)malloc(sizeof(LinkedList));
+    list->first = NULL;
+    list->last = NULL;
+    return list;
+}
+
+Node* createNode(int x) {
+    Node* node = (Node*)malloc(sizeof(Node));
+    node->data = x;
+    node->next = NULL;
+    return node;
+}
+
+void insertNode(LinkedList* list, Node* node) {
+    if (list->first == NULL) {
+        list->first = list->last = node;
+    } else {
+        list->last->next = node;
+        list->last = node;
+    }
+}
+
+void insertAfterNode(LinkedList *list, Node *pos, Node *newnode){
+    newnode->next = pos->next;
+    pos->next = newnode;
+}
+
+Node *prevNode;
+Node* searchNode(LinkedList *list, int key){
+    Node *node = list->first;
+    prevNode = NULL;
+    while(node!=NULL){
+        if(node->data == key){
+            return node;
+        }
+        prevNode = node;
+        node=node->next;
+    }
+}
+
+void removeNode(LinkedList *list, int key){
+    Node *foundNode = searchNode(list, key);
+    if(foundNode!=NULL){
+        if(foundNode == list->first){
+            list->first = foundNode->next;
+            if(foundNode == list->last){
+                list->last = NULL;
+            }
+            free(foundNode);
+            return;
+        }
+        prevNode->next=foundNode->next;
+        if(foundNode == list->last){
+           list->last = prevNode;
+        }
+        free(foundNode);
+    }
+}
+
+void printLinkedList(LinkedList *list){
+    Node *node = list->first;
+    while(node!=NULL){
+        printf("%d ",node->data);
+        node=node->next;
+    }
+    printf("\n");
+}
+
+void deleteNodesBetween(LinkedList *list, Node *node1, Node *node2) {
+    if (node1 == NULL || node2 == NULL)
+        return;
+
+    Node* current = node1;
+    while (current != node2->next) {
+        Node* temp = current;
+        current = current->next;
+        removeNode(list, temp->data);
+    }
+}
+
+void inputLinkedList(LinkedList *list){
+    char d;
+    int x;
+    do {
+        scanf("%d", &x);
+        Node* node = createNode(x);
+        insertNode(list, node);
+        d = getchar();
+    } while (d != '\n');
+}
+
+int main() {
+    LinkedList* list1 = createLinkedList();
+    LinkedList* list2 = createLinkedList();
+    inputLinkedList(list1);
+    inputLinkedList(list2);
+    int a, b;
+    scanf("%d%d", &a, &b);
+    Node *node1 = searchNode(list1, a);
+    Node *prev2 = prevNode;
+    Node *node2 = searchNode(list1, b);
+    deleteNodesBetween(list1, node1, node2);
+    prev2->next=list2->first;
+    list2->last->next = node2->next;
+    printLinkedList(list1);
+
+    return 0;
+}
