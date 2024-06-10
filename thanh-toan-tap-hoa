@@ -1,0 +1,213 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct
+{
+    char sanPham[50];
+    int soLuong;
+    int giaBan;
+} donHang;
+
+typedef struct Node
+{
+    donHang data;
+    struct Node *next;
+} Node;
+
+typedef struct
+{
+    Node *first;
+    Node *last;
+} Linkedlist;
+
+Linkedlist* create_new_linkedlist()
+{
+    Linkedlist *list = (Linkedlist*)malloc(sizeof(Linkedlist));
+    list->first=NULL;
+    list->last=NULL;
+    return list;
+}
+
+Node* create_new_node(donHang hang)
+{
+    Node *new_node = (Node*)malloc(sizeof(Node));
+    new_node->data=hang;
+    new_node->next=NULL;
+    return new_node;
+}
+
+void add_first_node(Linkedlist *list, Node *node)
+{
+    list->first=node;
+    list->last=node;
+}
+
+void add_to_last(Linkedlist *list, Node *node)
+{
+    if(list->first==NULL)
+    {
+        add_first_node(list, node);
+    }
+    else
+    {
+        list->last->next=node;
+        list->last=node;
+    }
+}
+
+Node* search_node(Linkedlist *list,char hanghoa[])
+{
+    Node *node=list->first;
+    while(node!=NULL)
+    {
+        if(strcmp(node->data.sanPham,hanghoa)==0)
+        {
+            return node;
+        }
+        node=node->next;
+    }
+    return NULL; // Trả về NULL nếu không tìm thấy nút
+}
+
+void case_2(Linkedlist *list,char sanpham[])
+{
+    Node *found_node = search_node(list,sanpham);
+    if(found_node!=NULL)
+    {
+        if(found_node==list->first)
+        {
+            list->first=found_node->next;
+            if(found_node==list->last)
+            {
+                list->last=NULL;
+            }
+            free(found_node);
+        }
+        else
+        {
+            Node *prev_node = list->first;
+            while(prev_node->next != found_node)
+            {
+                prev_node = prev_node->next;
+            }
+            prev_node->next = found_node->next;
+            if(found_node==list->last)
+            {
+                list->last=prev_node;
+            }
+            free(found_node);
+        }
+    }
+}
+
+void print_a_node(Node *node)
+{
+    printf("%s",node->data.sanPham);
+    printf("%10d",node->data.soLuong);
+    printf("%10d\n",node->data.giaBan);
+}
+
+void case_3(Linkedlist *list)
+{
+    char hanghoa[50];
+    scanf("%s",hanghoa);
+    Node *found_node = search_node(list,hanghoa);
+    if(found_node!=NULL)
+    {
+        print_a_node(found_node);
+    }
+    else
+    {
+        printf("Khong ton tai san pham: %s\n",hanghoa);
+    }
+}
+
+void case_4(Linkedlist *list)
+{
+    char hanghoa[50];
+    scanf("%s",hanghoa);
+    Node *found_node = search_node(list, hanghoa);
+    if(found_node!=NULL)
+    {
+        int select;
+        scanf("%d",&select);
+        if(select==1)
+        {
+            int soluong;
+            scanf("%d",&soluong);
+            found_node->data.soLuong=soluong;
+        }
+        else if(select==2)
+        {
+            int giaban;
+            scanf("%d",&giaban);
+            found_node->data.giaBan=giaban;
+        }
+    }
+    else
+    {
+        printf("Khong the sua thong tin san pham: %s\n",hanghoa);
+    }
+}
+
+void case_5(Linkedlist *list)
+{
+    Node *node = list->first;
+    while(node!=NULL)
+    {
+        print_a_node(node);
+        node=node->next;
+    }
+}
+
+int main()
+{
+    Linkedlist *list= create_new_linkedlist();
+    int t;
+    int select_menu;
+    char sanpham[50];
+    scanf("%d",&t);
+    int s=t+1;
+    while(s--)
+    {
+        scanf("%d",&select_menu);
+        switch(select_menu)
+        {
+        case 1:
+            {
+                donHang hangHoa;
+                scanf("%s",hangHoa.sanPham);
+                scanf("%d",&hangHoa.soLuong);
+                scanf("%d",&hangHoa.giaBan);
+                Node *node = create_new_node(hangHoa);
+                add_to_last(list, node);
+            }
+            break;
+        case 2:
+            scanf("%s",sanpham);
+            case_2(list,sanpham);
+            break;
+        case 3:
+            case_3(list);
+            break;
+        case 4:
+            case_4(list);
+            break;
+        case 5:
+            case_5(list);
+            break;
+        }
+    }
+    // Giải phóng bộ nhớ
+    Node *current_node = list->first;
+    while(current_node != NULL)
+    {
+        Node *temp = current_node;
+        current_node = current_node->next;
+        free(temp);
+    }
+    free(list);
+    return 0;
+}
+
